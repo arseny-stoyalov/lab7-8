@@ -12,6 +12,19 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This class represent a crawler
+ * which takes a URL, max depth to go into
+ * and starts checking for links of a certain
+ * protocol in an html-page, that URL leads to.
+ * Then it tries to search for every link it found
+ * and if they lead to an html-page it does the same thing
+ * to it. Each iteration of searching crawler goes deeper
+ * into the web. When the site it finds lays deeper than the max
+ * depth (or the same depth as max) crawler stops
+ *
+ * @author Stoyalov Arseny BVT1803
+ */
 public class Crawler {
 
     private int maxDepth;
@@ -37,6 +50,12 @@ public class Crawler {
         unhandled.add(new WebPage(startingURL, 0));
     }
 
+    /**
+     * Searches for all websites it can find
+     * on html-pages
+     *
+     * @return List of pages it visited
+     */
     public List<WebPage> getSites() {
 
         updateDB(unhandled.get(0).getUrl().toString(), -1);
@@ -49,9 +68,19 @@ public class Crawler {
         return handled;
     }
 
+    /**
+     * Updates database record of a url giving
+     * it greater number of 'times occurred on
+     * other sites' or creates a new record of
+     * url if there wasn't any
+     *
+     * @param initialOccurrences sets number of occurrences for
+     *                           a new record (it's 1 for every record except
+     *                           the page crawler starts with)
+     */
     public void updateDB(String url, int initialOccurrences) {
         String select = "SELECT occurrences FROM urls " +
-                "WHERE url = '" +  url + "'";
+                "WHERE url = '" + url + "'";
         String update = "UPDATE urls " +
                 "SET occurrences = ? " +
                 "WHERE url = '" + url + "'";
@@ -75,6 +104,11 @@ public class Crawler {
         }
     }
 
+    /**
+     * Searches for URL and if it finds an html-page
+     * starts looking for others URLs there. Calls method
+     * for updating database with visited pages
+     */
     private void searchForUrls(WebPage page) {
 
         System.out.println("Checking... " + page.toString());
@@ -117,6 +151,12 @@ public class Crawler {
         }
     }
 
+    /**
+     * Find all occurrences of '<a href="LINK"></a>'
+     * in a given string and gets all the LINKS from it
+     *
+     * @return list of string links found
+     */
     public List<String> findHttpUrl(String line) {
 
         List<String> matches = new ArrayList<>();

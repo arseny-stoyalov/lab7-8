@@ -9,6 +9,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * This is an entry point class which
+ * reads a URL and maximum depth values
+ * from console, then prints out a list
+ * of sites the crawler with this parameters
+ * visited.
+ *
+ * @author Stoyalov Arseny BVT1803
+ */
 public class Main {
 
     //testing values

@@ -3,6 +3,12 @@ package com.company;
 import java.net.URL;
 import java.util.Objects;
 
+/**
+ * Entity that contains a URL and its depth.
+ * Represents page that crawler needs to visit
+ *
+ * @author Stoyalov Arseny BVT1803
+ */
 public class WebPage {
 
     private URL url;
