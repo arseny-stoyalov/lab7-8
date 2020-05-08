@@ -5,10 +5,14 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,13 +41,8 @@ public class Crawler {
 
     public static final int PORT = 80;
 
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/crawler_urls";
-
-    private static final String DB_USER = "crawler";
-
-    private static final String DB_PASSWORD = "onlydoomiseternal";
-
     public Crawler(URL startingURL, int maxDepth) {
+
         this.maxDepth = maxDepth;
         this.handled = new LinkedList<>();
         this.unhandled = new LinkedList<>();
@@ -69,6 +68,29 @@ public class Crawler {
     }
 
     /**
+     * Returns instance of Connection to connect
+     * to database with properties from
+     * configs.properties file
+     *
+     * @return Connection instance
+     */
+    private Connection getConnection() throws IOException, SQLException {
+
+        String configsFileName = "configs.properties";
+        Properties props = new Properties();
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(configsFileName)) {
+            if (in != null)
+                props.load(in);
+            else
+                throw new FileNotFoundException("Could not find " + configsFileName);
+        }
+        String user = props.getProperty("db.login");
+        String password = props.getProperty("db.password");
+        String url = props.getProperty("db.url");
+        return DriverManager.getConnection(url, user, password);
+    }
+
+    /**
      * Updates database record of a url giving
      * it greater number of 'times occurred on
      * other sites' or creates a new record of
@@ -85,21 +107,21 @@ public class Crawler {
                 "SET occurrences = ? " +
                 "WHERE url = '" + url + "'";
         String create = "INSERT INTO urls(url, occurrences) VALUES('" + url + "', " + initialOccurrences + ")";
-        try (Connection c = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             Statement st = c.createStatement()) {
+        try (Connection connection = getConnection();
+             Statement st = connection.createStatement()) {
             ResultSet res = st.executeQuery(select);
             if (res.next()) {
                 int occurrences = res.getInt("occurrences");
-                PreparedStatement pst = c.prepareStatement(update);
+                PreparedStatement pst = connection.prepareStatement(update);
                 pst.setInt(1, ++occurrences);
                 pst.executeUpdate();
                 pst.close();
             } else {
-                PreparedStatement pst = c.prepareStatement(create);
+                PreparedStatement pst = connection.prepareStatement(create);
                 pst.executeUpdate();
                 pst.close();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
