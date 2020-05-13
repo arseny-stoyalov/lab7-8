@@ -5,9 +5,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -179,11 +176,11 @@ public class Crawler {
      *
      * @return list of string links found
      */
-    public List<String> findHttpUrl(String line) {
+    public static List<String> findHttpUrl(String line) {
 
         List<String> matches = new ArrayList<>();
         if (line == null) return matches;
-        Pattern pattern = Pattern.compile("<a.*?href=\"" + URL_PREFIX + ".+?\".*?>.*?</a>");
+        Pattern pattern = Pattern.compile("<a.*?href=\"" + URL_PREFIX + "\\S+?\".*?>.*?</a>");
         Matcher matcher = pattern.matcher(line);
         while (matcher.find()) {
             matches.add(matcher.group());
