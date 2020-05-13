@@ -43,7 +43,7 @@ public class WebPage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(url);
+        return Objects.hash(url.toString());
     }
 
 }
