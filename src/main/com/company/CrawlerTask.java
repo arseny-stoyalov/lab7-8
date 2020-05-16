@@ -7,6 +7,17 @@ import java.io.InputStreamReader;
 import java.net.*;
 import java.util.List;
 
+/**
+ * This class represents Runnable task
+ * for crawler. It finds gets a URL
+ * from URLPool, searches for links
+ * there (if it leads to an html page)
+ * then updates URLPool instance by
+ * adding found URLs as unhandled
+ * URLs
+ *
+ * @author Arseny Stoyalov BVT1803
+ */
 public class CrawlerTask implements Runnable {
 
     private URLPool pool;
@@ -27,6 +38,12 @@ public class CrawlerTask implements Runnable {
         System.out.println("Done with " + pageToSearch);
     }
 
+    /**
+     * Searches for given page if its depth
+     * is lesser than max depth of URLPool
+     * instance. Adds all URLs (found at
+     * this page)
+     */
     private void searchForUrls(WebPage page) {
 
         StringBuilder content = new StringBuilder();

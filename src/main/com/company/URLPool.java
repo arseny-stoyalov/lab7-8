@@ -5,6 +5,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * This class stores crawler info
+ * (max depth, unhandled and
+ * handled pages). Can be
+ * processed by multiple
+ * threads.
+ *
+ * @author Stoyalov Arseny BVT1803
+ */
 public class URLPool {
 
     private Set<WebPage> unhandled = new HashSet<>();

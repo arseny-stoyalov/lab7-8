@@ -16,10 +16,12 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This is an entry point class which
- * reads a URL and maximum depth values
+ * reads a URL, maximum depth,
+ * threads number, waiting time limit values
  * from console, then prints out a list
  * of sites the crawler with this parameters
- * visited.
+ * visited. Starts several threads to
+ * complete this task
  *
  * @author Stoyalov Arseny BVT1803
  */
@@ -74,6 +76,7 @@ public class Main {
             futures.removeIf(Future::isDone);
         }
         executor.shutdownNow();
+
         Set<URL> res = urlPool.getHandled();
         System.out.println(res);
 
