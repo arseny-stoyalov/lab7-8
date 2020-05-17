@@ -27,8 +27,6 @@ public class Main {
 
     private static boolean done;
 
-    //----------testing values-------------
-    //http://e-m-b.org/
     public static void main(String[] args) throws IOException {
 
         //---------------Getting all parameters from console--------------------
@@ -77,7 +75,7 @@ public class Main {
         }
         executor.shutdownNow();
         Set<URL> res = urlPool.getHandled();
-        System.out.println(res.size() + " " + res);
+        System.out.println(res);
 
     }
 
