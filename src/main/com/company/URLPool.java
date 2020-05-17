@@ -5,6 +5,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * This class stores crawler info
+ * (max depth, unhandled and
+ * handled pages). Can be
+ * processed by multiple
+ * threads.
+ *
+ * @author Stoyalov Arseny BVT1803
+ */
 public class URLPool {
 
     private Set<WebPage> unhandled = new HashSet<>();
@@ -20,23 +29,24 @@ public class URLPool {
         unhandled.add(new WebPage(url, 0));
     }
 
-    public synchronized int getWaitingThreads() {
+    public int getWaitingThreads() {
         return waitingThreads;
     }
 
-    public synchronized Set<WebPage> getUnhandled() {
+    public Set<WebPage> getUnhandled() {
         return unhandled;
     }
 
-    public synchronized Set<URL> getHandled() {
+    public Set<URL> getHandled() {
         return handled;
     }
 
-    public synchronized int getMaxDepth() {
+    public int getMaxDepth() {
         return maxDepth;
     }
 
     public synchronized void addUnhandledPage(WebPage page) {
+
         if (waitingThreads > 0) {
             waitingThreads--;
         }
@@ -63,7 +73,7 @@ public class URLPool {
     }
 
     public synchronized void addHandledPage(WebPage page) {
-        handled.add(page.getUrl());
+        if (handled.add(page.getUrl())) System.out.println(page + " added");
     }
 
 }
