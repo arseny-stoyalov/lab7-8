@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -56,7 +54,7 @@ public class Main {
 
         Crawler crawler = new Crawler(url, maxDepth);
 
-        List<WebPage> result = crawler.getSites();
+        Set<WebPage> result = crawler.getSites();
 
         System.out.println(result.size() + " : " + result.toString());
     }

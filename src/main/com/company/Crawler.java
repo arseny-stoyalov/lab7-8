@@ -5,14 +5,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,9 +27,9 @@ public class Crawler {
 
     private int maxDepth;
 
-    private List<WebPage> handled;
+    private Set<WebPage> handled;
 
-    private List<WebPage> unhandled;
+    private Set<WebPage> unhandled;
 
     public static final String URL_PREFIX = "http://";
 
@@ -44,8 +38,8 @@ public class Crawler {
     public Crawler(URL startingURL, int maxDepth) {
 
         this.maxDepth = maxDepth;
-        this.handled = new LinkedList<>();
-        this.unhandled = new LinkedList<>();
+        this.handled = new HashSet<>();
+        this.unhandled = new HashSet<>();
         unhandled.add(new WebPage(startingURL, 0));
     }
 
@@ -55,13 +49,14 @@ public class Crawler {
      *
      * @return List of pages it visited
      */
-    public List<WebPage> getSites() {
+    public Set<WebPage> getSites() {
 
-        updateDB(unhandled.get(0).getUrl().toString(), -1);
         while (!unhandled.isEmpty()) {
-            WebPage page = unhandled.remove(0);
+            Iterator<WebPage> i = unhandled.iterator();
+            WebPage page = i.next();
+            i.remove();
             handled.add(page);
-            System.out.println(handled.size());
+            updateDB(page.getUrl().toString(), 1);
             searchForUrls(page);
         }
         return handled;
@@ -101,6 +96,7 @@ public class Crawler {
      *                           the page crawler starts with)
      */
     public void updateDB(String url, int initialOccurrences) {
+
         String select = "SELECT occurrences FROM urls " +
                 "WHERE url = '" + url + "'";
         String update = "UPDATE urls " +
@@ -162,9 +158,7 @@ public class Crawler {
                 List<String> foundUrls = findHttpUrl(line);
                 for (String foundUrl : foundUrls) {
                     WebPage newPage = new WebPage(new URL(foundUrl), page.getDepth() + 1);
-                    if (!handled.contains(newPage) && !unhandled.contains(newPage))
-                        unhandled.add(newPage);
-                    else updateDB(newPage.getUrl().toString(), 1);
+                    unhandled.add(newPage);
                     System.out.println(newPage);
                 }
             }
@@ -183,13 +177,13 @@ public class Crawler {
 
         List<String> matches = new ArrayList<>();
         if (line == null) return matches;
-        Pattern pattern = Pattern.compile("<a.*?href=\"" + URL_PREFIX + ".+?\".*?>.*?</a>");
+        Pattern pattern = Pattern.compile("<a.*?href=\"" + URL_PREFIX + "\\S+?\".*?>.*?</a>");
         Matcher matcher = pattern.matcher(line);
         while (matcher.find()) {
             matches.add(matcher.group());
         }
         for (int i = 0; i < matches.size(); i++) {
-            Matcher matcherUrl = Pattern.compile("href=\"" + URL_PREFIX + ".+?\"").matcher(matches.get(i));
+            Matcher matcherUrl = Pattern.compile("href=\"" + URL_PREFIX + "\\S+?\"").matcher(matches.get(i));
             if (matcherUrl.find()) {
                 String resInQuotes = matcherUrl.group().substring(5);
                 matches.set(i, resInQuotes.substring(1, resInQuotes.length() - 1));
