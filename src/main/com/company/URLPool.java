@@ -29,23 +29,24 @@ public class URLPool {
         unhandled.add(new WebPage(url, 0));
     }
 
-    public synchronized int getWaitingThreads() {
+    public int getWaitingThreads() {
         return waitingThreads;
     }
 
-    public synchronized Set<WebPage> getUnhandled() {
+    public Set<WebPage> getUnhandled() {
         return unhandled;
     }
 
-    public synchronized Set<URL> getHandled() {
+    public Set<URL> getHandled() {
         return handled;
     }
 
-    public synchronized int getMaxDepth() {
+    public int getMaxDepth() {
         return maxDepth;
     }
 
     public synchronized void addUnhandledPage(WebPage page) {
+
         if (waitingThreads > 0) {
             waitingThreads--;
         }
