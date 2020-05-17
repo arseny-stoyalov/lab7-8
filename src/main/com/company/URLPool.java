@@ -73,7 +73,7 @@ public class URLPool {
     }
 
     public synchronized void addHandledPage(WebPage page) {
-        handled.add(page.getUrl());
+        if (handled.add(page.getUrl())) System.out.println(page + " added");
     }
 
 }
