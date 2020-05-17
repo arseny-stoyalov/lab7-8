@@ -29,15 +29,15 @@ public class URLPool {
         unhandled.add(new WebPage(url, 0));
     }
 
-    public int getWaitingThreads() {
+    public synchronized int getWaitingThreads() {
         return waitingThreads;
     }
 
-    public Set<WebPage> getUnhandled() {
+    public synchronized Set<WebPage> getUnhandled() {
         return unhandled;
     }
 
-    public Set<URL> getHandled() {
+    public synchronized Set<URL> getHandled() {
         return handled;
     }
 
@@ -73,7 +73,7 @@ public class URLPool {
     }
 
     public synchronized void addHandledPage(WebPage page) {
-        handled.add(page.getUrl());
+        if (handled.add(page.getUrl())) System.out.println(page + " added");
     }
 
 }
