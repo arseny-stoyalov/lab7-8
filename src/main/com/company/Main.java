@@ -5,13 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,8 +22,6 @@ import java.util.concurrent.TimeUnit;
  * @author Stoyalov Arseny BVT1803
  */
 public class Main {
-
-    private static boolean done;
 
     //http://e-m-b.org/
     public static void main(String[] args) throws IOException {
@@ -45,12 +39,8 @@ public class Main {
         URLPool urlPool = new URLPool(url, maxDepth);
 
         ExecutorService executor = Executors.newFixedThreadPool(threadNumber);
-        List<Future<?>> futures = new ArrayList<>();
-        List<Runnable> tasks = new ArrayList<>(threadNumber);
 
-        for (int i = 0; i < threadNumber; i++) {
-            tasks.add(new CrawlerTask(urlPool, serverAnswerTime));
-        }
+        CrawlerTask task = new CrawlerTask(urlPool, serverAnswerTime);
 
         Thread timer = new Thread(() -> {
 
@@ -60,31 +50,21 @@ public class Main {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            stop();
+            urlPool.setDone(true);
         });
         timer.start();
 
-        while (!done) {
-            Iterator<Runnable> iterator = tasks.iterator();
-            int unavailableThreads = futures.size();
-            for (int i = 0; i < tasks.size() - unavailableThreads; i++) {
-                futures.add(executor.submit(iterator.next()));
+        for (int i = 0; i < threadNumber; i++)
+            executor.submit(task);
 
-            }
-            boolean someDone = false;
-            while (!someDone && !done)
-                someDone = futures.stream().anyMatch(Future::isDone);
-            futures.removeIf(Future::isDone);
-        }
+        while (urlPool.isNotDone())
+            Thread.yield();
+
         executor.shutdownNow();
 
-        Set<URL> res = urlPool.getHandled();
+        Set<WebPage> res = urlPool.getHandled();
         System.out.println(res.size() + " : " + res);
 
-    }
-
-    private static void stop() {
-        done = true;
     }
 
     private static int getNumericParameterFromConsole(BufferedReader in, String value) throws IOException {

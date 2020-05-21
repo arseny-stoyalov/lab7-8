@@ -20,9 +20,9 @@ import java.util.List;
  */
 public class CrawlerTask implements Runnable {
 
-    private URLPool pool;
+    private final URLPool pool;
 
-    private int serverAnswerTime;
+    private final int serverAnswerTime;
 
     public CrawlerTask(URLPool pool, int serverAnswerTime) {
         this.pool = pool;
@@ -31,9 +31,11 @@ public class CrawlerTask implements Runnable {
 
     @Override
     public void run() {
-        WebPage pageToSearch = pool.getUnhandledPage();
-        searchForUrls(pageToSearch);
-        pool.addHandledPage(pageToSearch);
+        while (pool.isNotDone()) {
+            WebPage pageToSearch = pool.getUnhandledPage();
+            searchForUrls(pageToSearch);
+            pool.addHandledPage(pageToSearch);
+        }
     }
 
     /**

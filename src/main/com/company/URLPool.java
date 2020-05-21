@@ -1,6 +1,7 @@
 package com.company;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -16,29 +17,35 @@ import java.util.Set;
  */
 public class URLPool {
 
-    private Set<WebPage> unhandled = new HashSet<>();
+    private final Set<WebPage> unhandled = new HashSet<>();
 
-    private Set<URL> handled = new HashSet<>();
+    private final Set<WebPage> handled = new HashSet<>();
 
-    private int maxDepth;
+    private final int maxDepth;
 
-    private int waitingThreads;
+    private volatile int waitingThreads;
+
+    private volatile boolean done;
 
     public URLPool(URL url, int maxDepth) {
         this.maxDepth = maxDepth;
         unhandled.add(new WebPage(url, 0));
     }
 
-    public synchronized int getWaitingThreads() {
+    public int getWaitingThreads() {
         return waitingThreads;
     }
 
-    public synchronized Set<WebPage> getUnhandled() {
-        return unhandled;
+    public boolean isNotDone() {
+        return !done;
     }
 
-    public synchronized Set<URL> getHandled() {
-        return handled;
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+
+    public synchronized Set<WebPage> getHandled() {
+        return Collections.unmodifiableSet(handled);
     }
 
     public int getMaxDepth() {
@@ -73,7 +80,7 @@ public class URLPool {
     }
 
     public synchronized void addHandledPage(WebPage page) {
-        if (handled.add(page.getUrl())) System.out.println(page + " added");
+        handled.add(page);
     }
 
 }
